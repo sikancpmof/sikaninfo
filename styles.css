@@ -124,6 +124,11 @@ body {
     background: var(--hover);
 }
 
+/* New styles to ensure outline is visible */
+.join-button:focus {
+    outline: 2px solid var(--accent);
+}
+
 .projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

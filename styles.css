@@ -124,7 +124,6 @@ body {
     background: var(--hover);
 }
 
-/* New styles to ensure outline is visible */
 .join-button:focus {
     outline: 2px solid var(--accent);
 }
@@ -153,6 +152,12 @@ body {
     font-size: 16px;
     margin-bottom: 15px;
     color: var(--primary);
+}
+
+.project-card p {
+    color: var(--primary);
+    font-size: 14px;
+    margin-bottom: 10px;
 }
 
 .tag {
@@ -202,4 +207,19 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--accent);
+}
+
+/* Estilo para el favicon */
+.favicon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.favicon img {
+    width: 100%;
+    height: auto;
+    border-radius: 50%;
 }

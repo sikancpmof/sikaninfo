@@ -1,155 +1,182 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Navigation functionality
-    const navLinks = document.querySelectorAll('nav ul li a');
-    const sections = document.querySelectorAll('.device-section');
-    
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Remove active class from all links and sections
-            navLinks.forEach(link => link.classList.remove('active'));
-            sections.forEach(section => section.classList.remove('active-section'));
-            
-            // Add active class to clicked link
-            this.classList.add('active');
-            
-            // Get the target section and make it active
-            const targetId = this.getAttribute('href').substring(1);
-            const targetSection = document.getElementById(targetId);
-            targetSection.classList.add('active-section');
-            
-            // Smooth scroll to section
-            window.scrollTo({
-                top: targetSection.offsetTop - 100,
-                behavior: 'smooth'
-            });
-        });
-    });
-    
-    // Copy button functionality
-    const copyButtons = document.querySelectorAll('.copy-btn');
-    
-    copyButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const settingsCard = this.closest('.sensitivity-settings');
-            const deviceName = settingsCard.querySelector('h3').textContent;
-            const settings = settingsCard.querySelectorAll('.setting');
-            
-            let copyText = `Sensibilidad para ${deviceName}:\n\n`;
-            
-            settings.forEach(setting => {
-                const label = setting.querySelector('span:first-child').textContent;
-                const value = setting.querySelector('.value').textContent;
-                copyText += `${label} ${value}\n`;
-            });
-            
-            // Create a temporary textarea element to copy the text
-            const textarea = document.createElement('textarea');
-            textarea.value = copyText;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            
-            // Show feedback to user
-            const originalText = this.textContent;
-            this.textContent = '¡Copiado!';
-            this.style.backgroundColor = '#00cc00';
-            
-            setTimeout(() => {
-                this.textContent = originalText;
-                this.style.backgroundColor = '';
-            }, 2000);
-        });
-    });
-    
-    // Form submission
-    const suggestionForm = document.getElementById('suggestion-form');
-    
-    suggestionForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
+document.addEventListener("DOMContentLoaded", () => {
+    // Mobile Menu Toggle
+    const menuToggle = document.querySelector(".menu-toggle")
+    const nav = document.querySelector("nav")
+  
+    if (menuToggle && nav) {
+      menuToggle.addEventListener("click", () => {
+        nav.classList.toggle("active")
+      })
+    }
+  
+    // Close menu when clicking outside
+    document.addEventListener("click", (event) => {
+      if (
+        nav &&
+        nav.classList.contains("active") &&
+        !event.target.closest("nav") &&
+        !event.target.closest(".menu-toggle")
+      ) {
+        nav.classList.remove("active")
+      }
+    })
+  
+    // Suggestion Modal
+    const suggestionModal = document.getElementById("suggestion-modal")
+    const suggestBtn = document.getElementById("suggest-btn")
+    const floatingSuggestBtn = document.getElementById("floating-suggest-btn")
+    const suggestBtnFooter = document.querySelector(".suggest-btn-footer")
+    const closeModalBtns = document.querySelectorAll(".close-modal")
+    const successModal = document.getElementById("success-modal")
+    const modalBtn = document.querySelector(".modal-btn")
+  
+    // Open suggestion modal
+    function openSuggestionModal() {
+      if (suggestionModal) {
+        suggestionModal.style.display = "flex"
+        document.body.style.overflow = "hidden" // Prevent scrolling
+      }
+    }
+  
+    // Close modals
+    function closeModals() {
+      if (suggestionModal) {
+        suggestionModal.style.display = "none"
+      }
+      if (successModal) {
+        successModal.style.display = "none"
+      }
+      document.body.style.overflow = "auto" // Enable scrolling
+    }
+  
+    // Event listeners for opening suggestion modal
+    if (suggestBtn) {
+      suggestBtn.addEventListener("click", (e) => {
+        e.preventDefault()
+        openSuggestionModal()
+      })
+    }
+  
+    if (floatingSuggestBtn) {
+      floatingSuggestBtn.addEventListener("click", () => {
+        openSuggestionModal()
+      })
+    }
+  
+    if (suggestBtnFooter) {
+      suggestBtnFooter.addEventListener("click", (e) => {
+        e.preventDefault()
+        openSuggestionModal()
+      })
+    }
+  
+    // Close modal buttons
+    closeModalBtns.forEach((btn) => {
+      btn.addEventListener("click", closeModals)
+    })
+  
+    if (modalBtn) {
+      modalBtn.addEventListener("click", closeModals)
+    }
+  
+    // Close modal when clicking outside
+    window.addEventListener("click", (event) => {
+      if (event.target === suggestionModal) {
+        closeModals()
+      }
+      if (event.target === successModal) {
+        closeModals()
+      }
+    })
+  
+    // Form Submission
+    const settingsForm = document.getElementById("settings-form")
+  
+    if (settingsForm) {
+      settingsForm.addEventListener("submit", function (event) {
+        event.preventDefault()
+  
         // Get form data
-        const formData = new FormData(this);
-        const formDataObj = {};
-        
+        const formData = new FormData(this)
+        const formDataObj = {}
+  
         formData.forEach((value, key) => {
-            formDataObj[key] = value;
-        });
-        
-        // In a real application, you would send this data to a server
-        // For this example, we'll simulate sending an email
-        console.log('Sending form data to sikanoficial@gmail.com:', formDataObj);
-        
-        // Show success message
-        const formContainer = document.querySelector('.form-container');
-        const originalContent = formContainer.innerHTML;
-        
-        formContainer.innerHTML = `
-            <div class="success-message">
-                <h3>¡Gracias por tu sugerencia!</h3>
-                <p>Hemos recibido tu configuración de sensibilidad para ${formDataObj.device}.</p>
-                <p>La revisaremos y la añadiremos pronto a nuestra base de datos.</p>
-                <button id="back-btn" class="submit-btn">Volver al formulario</button>
-            </div>
-        `;
-        
-        // Add event listener to back button
-        document.getElementById('back-btn').addEventListener('click', function() {
-            formContainer.innerHTML = originalContent;
-            
-            // Re-initialize form submission
-            const newForm = document.getElementById('suggestion-form');
-            newForm.addEventListener('submit', suggestionForm.onsubmit);
-        });
-    });
-    
-    // Add LED effect to the page
-    function createLEDEffect() {
-        const container = document.querySelector('.container');
-        const led = document.createElement('div');
-        led.classList.add('led-effect');
-        
-        led.style.position = 'absolute';
-        led.style.width = '2px';
-        led.style.height = '100%';
-        led.style.backgroundColor = 'var(--primary-color)';
-        led.style.boxShadow = '0 0 10px var(--glow-color), 0 0 20px var(--glow-color)';
-        led.style.top = '0';
-        led.style.left = Math.random() * 100 + '%';
-        led.style.opacity = '0';
-        led.style.zIndex = '-1';
-        
-        container.appendChild(led);
-        
-        // Animate the LED
-        let opacity = 0;
-        const duration = Math.random() * 2000 + 1000; // 1-3 seconds
-        
-        const animate = () => {
-            opacity += 0.02;
-            led.style.opacity = Math.sin(opacity) * 0.5;
-            
-            if (opacity < duration / 100) {
-                requestAnimationFrame(animate);
-            } else {
-                container.removeChild(led);
-                createLEDEffect();
+          formDataObj[key] = value
+        })
+  
+        // In a real application, you would send this data to the server
+        // For this example, we'll just log it and show the success modal
+        console.log("Form Data:", formDataObj)
+  
+        // Email data would be sent to sikanoficial@gmail.com on the server
+  
+        // Hide suggestion modal and show success modal
+        if (suggestionModal && successModal) {
+          suggestionModal.style.display = "none"
+          successModal.style.display = "flex"
+        }
+  
+        // Reset form
+        settingsForm.reset()
+      })
+    }
+  
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      if (anchor.getAttribute("href") !== "#" && !anchor.classList.contains("suggest-btn-footer")) {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault()
+  
+          const targetId = this.getAttribute("href")
+          const targetElement = document.querySelector(targetId)
+  
+          if (targetElement) {
+            // Close mobile menu if open
+            if (nav && nav.classList.contains("active")) {
+              nav.classList.remove("active")
             }
-        };
-        
-        animate();
+  
+            // Calculate offset for fixed header
+            const headerHeight = document.querySelector("header").offsetHeight
+            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight
+  
+            window.scrollTo({
+              top: targetPosition,
+              behavior: "smooth",
+            })
+          }
+        })
+      }
+    })
+  
+    // Add animation to elements when they come into view
+    const animateOnScroll = () => {
+      const cards = document.querySelectorAll(".card, .tip-card, .phone-card, .category-card")
+      const windowHeight = window.innerHeight
+  
+      cards.forEach((card) => {
+        const cardTop = card.getBoundingClientRect().top
+  
+        if (cardTop < windowHeight - 100) {
+          card.style.opacity = "1"
+          card.style.transform = "translateY(0)"
+        }
+      })
     }
-    
-    // Create multiple LED effects
-    for (let i = 0; i < 5; i++) {
-        setTimeout(() => {
-            createLEDEffect();
-        }, i * 500);
-    }
-    
-    // Initialize the page with the first section active
-    navLinks[0].classList.add('active');
-    sections[0].classList.add('active-section');
-});
+  
+    // Set initial styles for animation
+    const cards = document.querySelectorAll(".card, .tip-card, .phone-card, .category-card")
+    cards.forEach((card) => {
+      card.style.opacity = "0"
+      card.style.transform = "translateY(20px)"
+      card.style.transition = "opacity 0.5s ease, transform 0.5s ease"
+    })
+  
+    // Run animation on scroll
+    window.addEventListener("scroll", animateOnScroll)
+  
+    // Run once on page load
+    animateOnScroll()
+  })
+  
+  
